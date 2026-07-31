@@ -1,0 +1,6 @@
+# Normalise text, but never let line-ending conversion near the binaries —
+# the resume PDF has to survive a round-trip byte for byte.
+* text=auto
+
+*.png -text
+*.pdf -text
