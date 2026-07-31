@@ -86,8 +86,12 @@ body::before,body::after{
   content:"";position:fixed;z-index:0;border-radius:50%;
   filter:blur(120px);opacity:.5;pointer-events:none;
 }
-body::before{width:620px;height:620px;background:radial-gradient(circle,rgba(255,59,59,.22),transparent 70%);top:-180px;left:-160px}
-body::after{width:640px;height:640px;background:radial-gradient(circle,rgba(179,0,27,.30),transparent 70%);top:520px;right:-220px}
+body::before{width:620px;height:620px;background:radial-gradient(circle,rgba(255,59,59,.22),transparent 70%);top:-180px;left:-160px;animation:drift1 24s ease-in-out infinite}
+body::after{width:640px;height:640px;background:radial-gradient(circle,rgba(179,0,27,.30),transparent 70%);top:520px;right:-220px;animation:drift2 29s ease-in-out infinite}
+/* the two glows breathe on their own slow, unequal cycles so the backdrop
+   never visibly repeats. transform only — stays on the compositor */
+@keyframes drift1{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(70px,50px,0) scale(1.09)}}
+@keyframes drift2{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-80px,-40px,0) scale(1.07)}}
 
 .wrap{width:min(var(--wrap),92vw);margin-inline:auto;position:relative;z-index:1}
 
@@ -153,7 +157,7 @@ body::after{width:640px;height:640px;background:radial-gradient(circle,rgba(179,
 .hero .eyebrow{justify-content:center;margin-bottom:1.6rem}
 .hero h1{
   font-size:clamp(2.9rem,9vw,5.6rem);font-weight:900;line-height:1.02;
-  letter-spacing:-.03em;margin:0 0 1.3rem;
+  letter-spacing:-.03em;margin:0 0 .85rem;
 }
 .hero-sub{max-width:640px;margin:0 auto;color:var(--muted);font-size:clamp(1rem,2.3vw,1.18rem)}
 .hero-sub b{color:var(--txt);font-weight:600}
@@ -165,6 +169,50 @@ body::after{width:640px;height:640px;background:radial-gradient(circle,rgba(179,
 }
 .soc:hover{color:#05070f;background:var(--grad);border-color:transparent;transform:translateY(-4px)}
 .soc svg{width:19px;height:19px}
+
+/* ---------- hero motion ----------
+   Staggered entrance: each line rises as the one before it settles.
+   Pure CSS, so it plays on first paint instead of waiting for script. */
+@keyframes heroRise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.hero .eyebrow,.hero h1,.hero-role,.hero-sub,.hero-cta,.hero .socials{
+  opacity:0;animation:heroRise .85s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.hero .eyebrow{animation-delay:.05s}
+.hero h1      {animation-delay:.17s}
+.hero-role    {animation-delay:.30s}
+.hero-sub     {animation-delay:.42s}
+.hero-cta     {animation-delay:.54s}
+.hero .socials{animation-delay:.66s}
+
+/* a soft highlight drifts back and forth through the name */
+.hero h1 .g{
+  background:linear-gradient(100deg,#B3001B 0%,#FF4D4D 28%,#FF9E9E 46%,#FF4D4D 64%,#B3001B 100%);
+  background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
+  animation:nameShine 8s ease-in-out infinite;
+}
+@keyframes nameShine{0%,100%{background-position:88% 50%}50%{background-position:12% 50%}}
+
+/* rotating engine name · the box eases to each incoming word's width so
+   the centred line never jumps sideways as the text changes */
+.hero-role{
+  font-family:var(--ff-mono);font-size:clamp(.78rem,2.1vw,.95rem);
+  color:var(--faint);margin:0 0 1.5rem;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.5rem;
+}
+.rotator{
+  position:relative;display:inline-block;height:1.5em;overflow:hidden;
+  text-align:left;vertical-align:bottom;transition:width .5s cubic-bezier(.2,.7,.3,1);
+}
+.rotator .word,.rotator .ruler{
+  display:block;line-height:1.5;font-weight:700;color:var(--cyan);white-space:nowrap;
+}
+.rotator .word{animation:wordIn .55s cubic-bezier(.2,.7,.3,1) both}
+/* hidden twin, sized by the same font — measured to pick the box width.
+   Kept off the .word class so it can never be mistaken for the live word. */
+.rotator .ruler{position:absolute;visibility:hidden;pointer-events:none;animation:none}
+.rotator .word.out{position:absolute;inset:0;animation:wordOut .45s cubic-bezier(.4,0,1,1) both}
+@keyframes wordIn {from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:none}}
+@keyframes wordOut{from{opacity:1;transform:none}  to{opacity:0;transform:translateY(-100%)}}
 
 /* ---------- results ticker ---------- */
 .band{border-block:1px solid var(--line);background:var(--bg-2);overflow:hidden;margin-top:3.5rem}
@@ -438,6 +486,11 @@ form .btn-grad{width:100%;justify-content:center;border-radius:12px;margin-top:.
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}.rv{opacity:1;transform:none}
+  /* hero starts at opacity:0 and is revealed by its entrance animation —
+     with motion off, show it outright rather than relying on the fill */
+  .hero .eyebrow,.hero h1,.hero-role,.hero-sub,.hero-cta,.hero .socials{opacity:1;animation:none}
+  .hero h1 .g,body::before,body::after,.lazy-box::before{animation:none}
+  .rotator .word{animation:none}
 }
 </style>
 </head>
@@ -470,6 +523,9 @@ form .btn-grad{width:100%;justify-content:center;border-radius:12px;margin-top:.
   <div class="wrap">
     <span class="eyebrow">SEO &middot; AEO &middot; GEO Specialist</span>
     <h1>Muhammad <span class="g">Ali</span></h1>
+    <p class="hero-role">Getting brands found on
+      <span class="rotator" id="rotator" aria-live="polite"><b class="word">Google</b></span>
+    </p>
     <p class="hero-sub">I get brands <b>found on Google</b> and <b>cited by the AI</b> that answers instead of it. Classic technical &amp; on-page SEO, plus the structure and content that makes ChatGPT, Gemini and AI Overviews quote your store by name.</p>
     <div class="hero-cta">
       <a class="btn btn-grad" href="#projects">My Work</a>
@@ -806,6 +862,42 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
   navToggle.classList.remove('open');
   navToggle.setAttribute('aria-expanded', 'false');
 }));
+
+/* ---- hero · rotating engine name ----
+   Names the places a brand can be found, so the animation carries the
+   AEO/GEO pitch rather than just decorating. The box is width-animated to
+   each incoming word — measured with a hidden twin that inherits the font
+   — so the centred line eases instead of snapping between widths. */
+const ENGINES = ["Google","ChatGPT","Gemini","AI Overviews","Perplexity","Copilot"];
+const rot = $('#rotator');
+if (rot) {
+  const ruler = document.createElement('b');
+  ruler.className = 'ruler';
+  ruler.setAttribute('aria-hidden', 'true');
+  rot.appendChild(ruler);
+  const widthOf = w => { ruler.textContent = w; return Math.ceil(ruler.getBoundingClientRect().width); };
+
+  let cur = rot.querySelector('.word'), i = 0;
+  const fit = () => { rot.style.width = widthOf(ENGINES[i]) + 'px'; };
+  /* measure only once the webfont is in, or the first width is the
+     fallback font's and the box visibly resettles */
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(fit);
+  addEventListener('resize', fit);
+
+  setInterval(() => {
+    if (document.hidden) return;              // don't cycle in a background tab
+    i = (i + 1) % ENGINES.length;
+    rot.style.width = widthOf(ENGINES[i]) + 'px';
+    const next = document.createElement('b');
+    next.className = 'word';
+    next.textContent = ENGINES[i];
+    const gone = cur;
+    gone.classList.add('out');
+    setTimeout(() => gone.remove(), 500);
+    rot.appendChild(next);
+    cur = next;
+  }, 2600);
+}
 
 /* ---- results ticker ---- */
 const WINS = [
