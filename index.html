@@ -505,6 +505,9 @@ html{overflow-x:hidden}
 @media(max-width:380px){
   .nav-cta{padding:.45rem .7rem;font-size:.7rem}
 }
+
+/* === hero name type refinement === */
+.hero h1{font-size:clamp(3rem,9.4vw,6rem);font-weight:800;letter-spacing:-.045em;line-height:.96;text-wrap:balance}
 </style>
 </head>
 <body>
@@ -745,7 +748,7 @@ const RESUME_DATA = "assets/resume/resume-data.js";
 /* Images pull from LinkedIn's CDN (links expire). Download each,
    drop it in an /assets folder, and swap the URL for the local path. */
 const IMG = {
-  photo:"https://media.licdn.com/dms/image/v2/D4D03AQGtNswyeRvX-w/profile-displayphoto-crop_800_800/B4DZ0oQsJYIIAI-/0/1774496959770?e=1786579200&v=beta&t=D2Ecc7ctLirWQBVzm_HQDjppqYWPaFA9alve6marYbo"
+  photo:"assets/profile.jpg"
 };
 /* ============================================================ */
 
