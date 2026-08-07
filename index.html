@@ -492,6 +492,19 @@ form .btn-grad{width:100%;justify-content:center;border-radius:12px;margin-top:.
   .hero h1 .g,body::before,body::after,.lazy-box::before{animation:none}
   .rotator .word{animation:none}
 }
+
+/* === mobile nav fix: stop horizontal overflow, keep Let's Talk visible === */
+html{overflow-x:hidden}
+@media(max-width:900px){
+  .nav-in{gap:.7rem}
+  .nav-cta{margin-left:auto}
+}
+@media(max-width:560px){
+  .nav-cta{display:inline-flex;padding:.5rem .85rem;font-size:.74rem;white-space:nowrap;margin-left:auto}
+}
+@media(max-width:380px){
+  .nav-cta{padding:.45rem .7rem;font-size:.7rem}
+}
 </style>
 </head>
 <body>
